@@ -2,12 +2,12 @@
   "private": true,
   "name": "abac-implement",
   "version": "1.0.0",
-  "main": "index.js",
   "repository": "git@github.com:weijiany/ABAC-implement.git",
   "author": "weijiany <cnweijiany@gmail.com>",
   "license": "MIT",
   "workspaces": [
-    "web"
+    "web",
+    "abac"
   ],
   "scripts": {
     "eslint": "npx eslint .",

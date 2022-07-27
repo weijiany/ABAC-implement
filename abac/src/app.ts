@@ -1,9 +1,12 @@
 import express, {Express, Request, Response} from "express";
+import PEP from "./pep";
 
 const app: Express = express();
 
-app.get("/**", (req: Request, res: Response) => {
-    res.status(200).send("hello world");
+app.get("/**", async (req: Request, res: Response) => {
+    const pep = new PEP();
+    const body = await pep.checkAccess(req);
+    res.status(200).json(body);
 });
 
 export default app;

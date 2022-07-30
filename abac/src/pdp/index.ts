@@ -9,7 +9,7 @@ class PDP {
     }
 
     public async checkAccess(req: Request) {
-        const resp = await this.pipClient.get("/users", req.query);
+        const resp = await this.pipClient.get("/attributes", req.query);
         return resp.data
     }
 }

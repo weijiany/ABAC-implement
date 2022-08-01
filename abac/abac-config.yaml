@@ -1,0 +1,27 @@
+backendAddress: http://localhost:3000
+informationPoints:
+  - name: remote-http
+    options:
+      # the pip endpoint should return [
+      #     {
+      #         "key": "key",
+      #         "value": "value"
+      #     }
+      # ]
+      endpoint: http://localhost:3000/attributes
+      input:
+        - key: id
+          value: "urn:attr:id"
+      output:
+        - key: name
+          value: "urn:attr:name"
+endpoints:
+  demo:
+    paths:
+      - path: /hello
+        resource: "urn:path:hello"
+        extractors:
+          - type: header
+            options:
+              - key: X-user-id
+                attribute: "urn:attr:id"

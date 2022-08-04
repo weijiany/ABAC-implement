@@ -1,6 +1,7 @@
 import axios from "axios";
 import {PIPConfig} from "./PIPConfig";
 import {Attribute} from "../../types/types";
+import {assign} from "../../utils";
 
 class PIPClient {
     private informationPoints: PIPConfig[];
@@ -11,24 +12,19 @@ class PIPClient {
 
     public collectAttributes(attributes: Attribute): Promise<Attribute> {
         let pipReq = this.informationPoints.map(async (point: PIPConfig) => {
-            let params = Object.assign({}, ...point.options.input.map(keyPair => {
-                let res: Record<string, string> = {};
-                res[keyPair.key] = attributes[keyPair.value] as string;
-                return res;
-            }));
-            let respData = (await axios.get<{key: string, value: string}[]>(
-                point.options.endpoint, {params})).data;
+            let params = point.options.input
+                .map(keyPair => ({[keyPair.key]: attributes[keyPair.value]}))
+                .reduce(assign, {});
 
-            return point.options.output.map(keyPair => {
-                let res: Record<string, string> = {};
-                res[keyPair.value] = respData.filter(item => item.key === keyPair.key)[0].value;
-                return res;
-            }).reduce((pre, cur) => Object.assign(cur, pre), {});
+            let resp = await axios.get<{key: string, value: string}[]>(point.options.endpoint, {params});
+
+            return point.options.output.map(keyPair => ({
+                [keyPair.value]: resp.data.filter(item => item.key === keyPair.key)[0].value
+            })).reduce(assign, {}) as Attribute;
         });
 
         return Promise.all(pipReq)
-            .then(pipRes => pipRes
-                .reduce((pre, cur) => Object.assign(cur, pre), attributes));
+            .then(pipRes => pipRes.reduce(assign, attributes));
     }
 
     public get(path: string, param_dict: {[key: string]: any}): Promise<any> {

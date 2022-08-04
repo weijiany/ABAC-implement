@@ -4,6 +4,7 @@ import {Path, PDPConfig} from "./PDPConfig";
 import {PIPConfig} from "./pip/PIPConfig";
 import {Attribute} from "../types/types";
 import {Extractor, ExtractorKeyPair} from "./extractors";
+import {assign} from "../utils";
 
 class PDP {
     private readonly pipClient: PIPClient;
@@ -27,12 +28,8 @@ class PDP {
             .flat()
             .map((extractor: Extractor) => extractor.options)
             .flat()
-            .map((keyPair: ExtractorKeyPair) => {
-                let res: Record<string, string> = {};
-                res[keyPair.attribute] = req.header(keyPair.key) as string;
-                return res;
-            })
-            .reduce((pre, cur) => Object.assign(cur, pre), {"urn:resource-id": specificPath.resource}) as Attribute
+            .map((keyPair: ExtractorKeyPair) => ({[keyPair.attribute]: req.header(keyPair.key)}))
+            .reduce(assign, {"urn:resource-id": specificPath.resource}) as Attribute
 
         return await this.pipClient.collectAttributes(attributes);
     }

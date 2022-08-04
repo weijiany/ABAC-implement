@@ -29,10 +29,8 @@ class PDP {
                 res[keyPair.attribute] = req.header(keyPair.key) as string;
                 return res;
             })) as Attribute;
-        await this.pipClient.collectAttributes(attributes);
 
-        const resp = await this.pipClient.get("/attributes", req.query);
-        return resp.data
+        return await this.pipClient.collectAttributes(attributes);
     }
 }
 

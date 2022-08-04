@@ -1,4 +1,6 @@
 backendAddress: http://localhost:3000
+policies:
+  - user-name-exists
 informationPoints:
   - name: remote-http
     options:

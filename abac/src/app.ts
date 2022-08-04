@@ -3,7 +3,7 @@ import {PEP} from "./pep";
 import path from "path";
 
 const app: Express = express();
-const pep = new PEP(path.join(__dirname, "..", "abac-config.yaml"));
+const pep = new PEP(path.join(__dirname, "../.."));
 
 app.get("/**", async (req: Request, res: Response) => {
     const body = await pep.checkAccess(req);

@@ -9,7 +9,4 @@ interface Path {
 interface PDPConfig {
     paths: Path[]
 }
-
-const needProcess = (aPath: string, config: PDPConfig): boolean => config.paths.map(path => path.path).includes(aPath);
-
-export {PDPConfig, Path, needProcess}
+export {PDPConfig, Path}

@@ -1,6 +1,6 @@
 import {PIPClient} from "./pip"
 import {Request} from "express";
-import {needProcess, PDPConfig} from "./PDPConfig";
+import {Path, PDPConfig} from "./PDPConfig";
 import {PIPConfig} from "./pip/PIPConfig";
 import {Attribute} from "../types/types";
 import {Extractor, ExtractorKeyPair} from "./extractors";
@@ -15,12 +15,15 @@ class PDP {
     }
 
     public async checkAccess(req: Request) {
-        let specificConfigs: PDPConfig[] = Object.values(this.endpoints)
-            .filter(config => needProcess(req.path, config));
-        if (specificConfigs.length === 0)
+        let paths: Path[] = Object.values(this.endpoints)
+            .map(endpoint => endpoint.paths)
+            .flat()
+            .filter(aPath => aPath.path === req.path);
+        if (paths.length === 0)
             return true;
 
-        let attributes = Object.assign({}, ...specificConfigs[0].paths.map(path => path.extractors)
+        let specificPath = paths[0];
+        let attributes = specificPath.extractors
             .flat()
             .map((extractor: Extractor) => extractor.options)
             .flat()
@@ -28,7 +31,8 @@ class PDP {
                 let res: Record<string, string> = {};
                 res[keyPair.attribute] = req.header(keyPair.key) as string;
                 return res;
-            })) as Attribute;
+            })
+            .reduce((pre, cur) => Object.assign(cur, pre), {"urn:resource-id": specificPath.resource}) as Attribute
 
         return await this.pipClient.collectAttributes(attributes);
     }
